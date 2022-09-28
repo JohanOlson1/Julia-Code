@@ -7,15 +7,16 @@
 ## Basics:
 
 - Visual Studio as IDE
-- Julia file ending: .jl
-- Block: #%%
+- Block: #%%, start and end
 - Comment: #
 - Run a line: Ctrl+Enter
 - Run a block: Alt+Enter
 - Rational numbers possible, eg. 2 // 3
 - Help, use ? in command line, then follow up
-- Use ; to suppress print
 - Ctrl+l to clear terminal
+- Cannot delete variables except by restarting?!
+- Column major order in arrays!
+- Can add Latex symbols: eg. \delta<tab>
 
 ## Types:
 
@@ -25,9 +26,9 @@ Julia can infer the data type, unlike C, no need to specify type
 - Convert one type to another: convert("type", x)
 - char - 1 byte (256 options) usually enclosed as 'A'
 - string - 1 byte per char, usually enclosed as "Hello"
-- int - 4 bytes, 2^(32-1) = 2,147,483,647, and 1 signed int for + or - (integers)
+- int - 4 bytes, 2^(32-1) = 2,147,483,647, 1 signed bit
 - float (single precision) - 4 bytes, 8 bits for exponent (1 signed), 24 bits for number (1 signed)
-- ![image-20220830104313849](C:\Users\Johan\AppData\Roaming\Typora\typora-user-images\image-20220830104313849.png)
+- ![image-20220901202622676](C:\Users\Johan\AppData\Roaming\Typora\typora-user-images\image-20220901202622676.png)
 
 ## Functions:
 
@@ -162,7 +163,61 @@ Julia can infer the data type, unlike C, no need to specify type
     ```
 
   - Just as fast as a for loop over the array 
+  
   - Easier to do parallel programming with it later
+  
+  - Can pad and perform operation with higher dimensional matrix
+  
+    ```
+    broadcast(+, a, A) # eg. a a variable and A a matrix
+    ```
+  
+    
+
+## Parsing
+
+- Opening a file:
+
+  ```
+  filepointer = open("Textfile.txt", "r") #
+  ```
+
+![image-20220901163853689](C:\Users\Johan\AppData\Roaming\Typora\typora-user-images\image-20220901163853689.png)
+
+- Write into a file and close:
+
+  ```
+  write(filepointer, "text")
+  close(filepointer) # Always close afterwards
+  ```
+
+- Read one line from the file:
+
+  ```
+  readline(filepointer) # observe that we progress one line
+  readline(filepointer) # read next line
+  ```
+
+- Handling the input:
+
+  ```
+  strip() 								 # Remove leading and trailing characters from string
+  strip(str::AbstractString, chars) 			# choose the character
+  
+  parse(type, input)							# transform input to specified type
+  
+  split() 								# split into an array at specific character
+  
+  map(f,c) 								# Transform collection c by applying f to each element
+  
+  Array{String}(split(rstrip(readline(stdin)))) # Create an array of (strings)(default)
+  
+  map(x -> parse(Int32, x), Array{String}(split(rstrip(readline(stdin))))) # Create an array of Int32s
+  
+  
+  ```
+
+  
 
 ## Control Flow
 
@@ -186,6 +241,8 @@ end
 
 - Example of code:
 
+- Try to put the most common condition in the then block after if (avoid flushing the pipeline)
+
   ```
   if x >= 0
   	x = x
@@ -196,11 +253,17 @@ end
   end
   ```
 
-- Different conditional statements_
+- Different conditional statements:
+
+- Chaining comparisons possible 
 
   ```
-  & #and 
-  || # or
+  &		# and 
+  ||	 	# or
+  ==		# Equality
+  !=		# Inequality	
+  <=		# Less or equal than
+  >=		# Greater or equal than
   
   ```
 
@@ -216,7 +279,11 @@ end
 - Example
 
   ```
-  for i in 1:10 # equivalent to: for i = 1:10
+  for i in 1:10 # equivalent to: for i = 1:10			# forwards for loop
+      println(i^2)
+  end
+  
+  for i in 1:10 # equivalent to: for i = reverse(1:10) # backwards for loop
       println(i^2)
   end
   ```
@@ -384,10 +451,29 @@ end
   ````
 
   - https://techytok.com/lesson-modules/
+  
+    ### Different Modules To Use
+  
+    ```
+    using Pkg
+    Pkg.add("Plots") 	# Plotting functions
+    Pkg.add("QuadGK")	# Numerical integration
+    Pkg.add("Unitful")	# To use units in code, added as u"m", u for unit and indicator "m"
+    Pkg.add("PyCall")	# Python include
+    Pkg.add("Profile")  # Profiling functions
+    Pkg.add("BenchmarkTools ") # Measure speed
+    Pkg.add("Unitful")	# Units of measurement
+    
+    using "package_name" # Dont forget
+    ```
+    
+    
 
 ## Types
 
 - Abstract and concrete types
+
+- Can specify type of something using: ::type
 
 - We can think of types as containers for data only. Moreover, it is possible to define a type hierarchy so that functions that work for parent type work also for the children
 
@@ -461,4 +547,149 @@ end
 
 - https://techytok.com/lesson-types/
 
-- 
+## Built in functions
+
+- Print output without going to new line: 
+
+  ```
+  print()
+  ```
+
+- Print output and go to new line:
+
+  ```
+  println()
+  ```
+
+- Round to a certain amount of decimals or significant digits
+
+  ```
+  round(Value, digits = n) # can also specify base = N, eg. Value/N
+  round(Value, sigdigits = n)
+  ```
+
+
+- Turn a string into another value:
+
+  ```
+  parse(type,string)
+  ```
+
+- Padding:
+
+  ```
+  lpad(Input, N, '0') # Here zero pad, N size and l for left, h for right
+  ```
+
+
+- Test Numbers: true or false
+
+  ```
+  isequal(x,y)
+  isfinite(x)
+  isinf(x)
+  isnan(x)
+  isinteger(x) # Check if 3.0 is the same as 3
+  ```
+
+  - Factorial and Big Int (largest int possible)
+
+    ```
+    factorial(BigInt(x))
+    ```
+  
+  
+  - Get array of unique entries
+  
+    ```
+    unique(array)
+    ```
+  
+    
+  
+  ## Ternary Operators
+  
+  - If else statement. If a statement true, then b, else c
+  
+    ```
+    a ? b : c
+    ```
+
+## Plotting
+
+### Normal 2D plot
+
+- The ! is used to modify function
+
+```
+plot(x, y, label="sin(x)") 		# Plot y vs x
+plot!(xlab="x", ylab="f(x)")	# Add labels
+plot!(legend=:bottomleft)  		# Legend Position
+savefig("img1c.png")			# Save figure in folder
+```
+
+- Some backend options:
+- GR, quite new so lacking options: gr()
+- Plotly, nice interactive plots, web based: plotly()
+- Pyplot, use the python plotting tool, need to be setup
+
+### Plot using Pyplot as default
+
+- Added the following way
+
+  ```julia
+  using Pkg
+  Pkg.add("PyPlot")
+  using Plots
+  pyplot()
+  ```
+
+- Can also add Latex options
+
+  ```
+  Pkg.add("LaTeXStrings")
+  using LaTeXStrings
+  ```
+
+- Every function or property for matplotlib is available through `PyPlot.function_name`
+
+## Integration
+
+- Done using the QuadGK package: Which use Gauss-Konrad formula
+
+  ```
+  using Pkg
+  Pkg.add("QuadGK")
+  
+  using QuadGK
+  
+  func1(x) = exp(-x^2)
+  res, err = quadgk(func1, -Inf, Inf, rtol=1e-15)
+  
+  func2(x, y, z) = x + y^3 + sin(z) # Multiple variables
+  x = 5							# Fix
+  z = 3
+  arg(y) = func2(x, y, z) 		# Make new Function
+  
+  #%%
+  res, err = let x=5; z=3			# Same thing using let and local x,z
+      arg(y) = func2(x, y, z)
+      
+      quadgk(arg, 1, 3)
+  end
+  ```
+
+  ## Profiling (Time)
+  
+  
+  
+  ## Keyboard Shortcuts
+  
+  - Undo: Ctrl+z
+  - Redo: Ctrl+y
+  - Cut: Ctrl+x
+  - Find: Ctrl+f
+  - Replace: Ctrl+h
+  - Jump word: Ctrl+Shift+pil
+  - Comment out/undo: Ctrl+'
+  - Mark next instance: Ctrl+d
